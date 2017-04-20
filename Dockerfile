@@ -35,7 +35,7 @@ RUN cd /srv/steam/Steam && su -c '/srv/steam/Steam/steamcmd.sh +login anonymous 
 RUN su steam && cd /srv/steam/Steam && /srv/steam/Steam/steamcmd.sh +force_install_dir "/srv/steam/content/css" +login anonymous +app_update 232330 +quit
 
 # Add mount config so GMod can find CSS files
-RUN su steam && printf '"mountcfg"\n{\n"cstrike" "/srv/steam/content/css/cstrike"\n}\n' > /srv/steam/gmodds/garrysmod/cfg/mount.cfg
+RUN su steam && printf '"mountcfg"\n{\n"cstrike" "/srv/steam/content/css/cstrike"\n}\n' >> /srv/steam/gmodds/garrysmod/cfg/mount.cfg
 
 # Expose configuration folder of Garry's Mod
 VOLUME /srv/steam/gmodds/garrysmod/cfg
@@ -56,4 +56,3 @@ EXPOSE 27005 27015
 
 # Entrypoint
 ENTRYPOINT ["run.sh"]
-CMD ["-console -game garrysmod +maxplayers ${MAX_PLAYERS} +map ${START_MAP} +gamemode ${GAME_MODE}"]
