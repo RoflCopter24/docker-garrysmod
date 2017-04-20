@@ -2,7 +2,7 @@
 FROM debian
 
 LABEL maintainer=florian@eagle-eye-studios.net
-LABEL version=2016.04.20
+LABEL version=2017.04.20
 
 # Enable 32-bit packages and update pkg cache
 RUN dpkg --add-architecture i386 && apt-get update
@@ -52,6 +52,8 @@ RUN chmod a+x /usr/bin/run.sh
 ENV MAX_PLAYERS=16
 ENV START_MAP=gm_construct
 ENV GAME_MODE=terrortown
+ENV STEAM_API_KEY=xxxx
+ENV_STEAM_WS_COLL=xxxx
 
 EXPOSE 27005 27015
 
