@@ -1,20 +1,28 @@
 # Dockerfile for Garry's Mod server
 FROM debian
 
-# Install deps
-RUN apt update && apt install wget lib32gcc1 -y
+LABEL maintainer=florian@eagle-eye-studios.net
+LABEL version=2016.04.20
 
-# add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
+# Enable 32-bit packages and update pkg cache
+RUN dpkg --add-architecture i386 && apt-get update
+
+# Install deps
+RUN apt-get install wget lib32gcc1 libc6:i386 libstdc++6:i386 -y
+
+# add user and group
 RUN addgroup steam && adduser -q --no-create-home --disabled-password --ingroup steam steam 
 
+# Create install folder for game server
 RUN mkdir /srv/steam && chown -R steam:steam /srv/steam
 
-# create directory
-RUN cd /srv/steam && su steam && mkdir content gmodds Steam content/css && cd Steam
+# create directory structure
+RUN cd /srv/steam && su steam && mkdir content gmodds Steam content/css
 
 # Get Steam cmd launcher
 RUN su steam && cd /srv/steam/Steam && wget http://media.steampowered.com/client/steamcmd_linux.tar.gz && tar -xvzf steamcmd_linux.tar.gz
 
+# Make sure rights are correct
 RUN su steam && chown -R steam:steam /srv/steam && chmod a+x /srv/steam/Steam/steamcmd.sh
 
 # Update steam
@@ -29,16 +37,23 @@ RUN su steam && cd /srv/steam/Steam && /srv/steam/Steam/steamcmd.sh +force_insta
 # Add mount config so GMod can find CSS files
 RUN su steam && printf '"mountcfg"\n{\n"cstrike" "/srv/steam/content/css/cstrike"\n}\n' > /srv/steam/gmodds/garrysmod/cfg/mount.cfg
 
+# Expose configuration folder of Garry's Mod
 VOLUME /srv/steam/gmodds/garrysmod/cfg
 
-RUN dpkg --add-architecture i386 && apt-get update
-
-RUN apt-get install libc6:i386 libstdc++6:i386 -y
-
+# Copy run script from build context
 ADD run.sh /usr/bin/run.sh
 
+# Set run script to executable
 RUN chmod a+x /usr/bin/run.sh
+
+# Set environment variables so Plaer count, startup map and game mode can easily be changed 
+# by the 'docker run' command
+ENV MAX_PLAYERS=16
+ENV START_MAP=gm_construct
+ENV GAME_MODE=terrortown
+
+EXPOSE 27005 27015
 
 # Entrypoint
 ENTRYPOINT ["run.sh"]
-CMD ["-console -game garrysmod +maxplayers 16 +map gm_construct +gamemode terrortown"]
+CMD ["-console -game garrysmod +maxplayers ${MAX_PLAYERS} +map ${START_MAP} +gamemode ${GAME_MODE}"]
