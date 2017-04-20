@@ -39,6 +39,7 @@ RUN su steam && printf '"mountcfg"\n{\n"cstrike" "/srv/steam/content/css/cstrike
 
 # Expose configuration folder of Garry's Mod
 VOLUME /srv/steam/gmodds/garrysmod/cfg
+VOLUME /srv/steam/gmodds/garrysmod/addons
 
 # Copy run script from build context
 ADD run.sh /usr/bin/run.sh
